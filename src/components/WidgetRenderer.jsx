@@ -4,6 +4,11 @@ import { resumeData } from '../data/resumeData';
 import SkillTag from './SkillTag';
 import ProjectCard from './ProjectCard';
 import ExperienceCard from './ExperienceCard';
+import HRProfileCard from './HRProfileCard';
+import SkillRadar from './SkillRadar';
+import ExperienceTimeline from './ExperienceTimeline';
+import CandidateSnapshot from './CandidateSnapshot';
+import InteractiveResume from './InteractiveResume';
 
 // --- Dynamic widget config map ---
 const widgetMap = {
@@ -96,6 +101,11 @@ const widgetMap = {
             { label: 'Contact Info', cmd: 'contact' },
             { label: 'Key Highlights', cmd: 'highlights' },
             { label: 'Download Resume', cmd: 'resume' },
+            { label: '👤 HR Profile', cmd: 'profile card' },
+            { label: '📊 Skill Chart', cmd: 'skill chart' },
+            { label: '🗂️ Timeline', cmd: 'timeline' },
+            { label: '🎯 Evaluate', cmd: 'evaluate' },
+            { label: '📋 Full Resume', cmd: 'full resume' },
         ];
 
         return (
@@ -124,7 +134,7 @@ const widgetMap = {
         </div>
     ),
 
-    // --- NEW: Key Highlights / Achievement Stats ---
+    // --- Key Highlights / Achievement Stats ---
     highlights: () => {
         const stats = [
             { icon: <Clock size={20} />, value: '3+', label: 'Years Experience', color: 'text-green-400' },
@@ -151,7 +161,7 @@ const widgetMap = {
         );
     },
 
-    // --- NEW: Resume Download ---
+    // --- Resume Download ---
     'resume-download': () => (
         <div className="mt-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <a
@@ -167,6 +177,13 @@ const widgetMap = {
             </p>
         </div>
     ),
+
+    // --- NEW HR WIDGETS ---
+    'hr-profile': () => <HRProfileCard />,
+    'skill-radar': () => <SkillRadar />,
+    'timeline': () => <ExperienceTimeline />,
+    'candidate-snapshot': () => <CandidateSnapshot />,
+    'full-resume': () => <InteractiveResume />,
 };
 
 const WidgetRenderer = ({ type, onCommand }) => {

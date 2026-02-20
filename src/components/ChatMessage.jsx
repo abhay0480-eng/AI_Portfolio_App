@@ -2,6 +2,8 @@ import React from 'react';
 import { User, Cpu } from 'lucide-react';
 import TypewriterText from './TypewriterText';
 import WidgetRenderer from './WidgetRenderer';
+import TranslateButton from './TranslateButton';
+import ListenButton from './ListenButton';
 
 const ChatMessage = ({ msg, onCommand }) => (
     <div className={`flex flex-col ${msg.type === 'user' ? 'items-end' : 'items-start'}`}>
@@ -11,8 +13,8 @@ const ChatMessage = ({ msg, onCommand }) => (
                 {/* Avatar */}
                 <div
                     className={`w-8 h-8 rounded flex items-center justify-center shrink-0 ${msg.type === 'user'
-                            ? 'bg-blue-900/30 text-blue-400'
-                            : 'bg-green-900/30 text-green-400'
+                        ? 'bg-blue-900/30 text-blue-400'
+                        : 'bg-green-900/30 text-green-400'
                         }`}
                 >
                     {msg.type === 'user' ? <User size={16} /> : <Cpu size={16} />}
@@ -38,6 +40,14 @@ const ChatMessage = ({ msg, onCommand }) => (
                                 <WidgetRenderer type={w} onCommand={onCommand} />
                             </div>
                         ))}
+
+                    {/* Translate & Listen buttons for bot messages */}
+                    {msg.type === 'bot' && msg.text && msg.id !== 1 && (
+                        <div className="flex items-center gap-2 mt-2">
+                            <ListenButton text={msg.text} />
+                            <TranslateButton text={msg.text} />
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

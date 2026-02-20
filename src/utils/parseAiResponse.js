@@ -10,6 +10,12 @@ const TAG_TO_WIDGET = {
     HIGHLIGHTS: 'highlights',
     RESUME_DOWNLOAD: 'resume-download',
     QUICK_ACTIONS: 'quick-actions',
+    // HR-specific tags
+    HR_PROFILE: 'hr-profile',
+    SKILL_RADAR: 'skill-radar',
+    TIMELINE: 'timeline',
+    CANDIDATE_SNAPSHOT: 'candidate-snapshot',
+    FULL_RESUME: 'full-resume',
 };
 
 const TAG_REGEX = /\[\[([A-Z_]+)\]\]/g;

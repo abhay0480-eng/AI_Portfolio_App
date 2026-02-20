@@ -1,1 +1,81 @@
 @import "tailwindcss";
+
+/* Shimmer animation for skill bars */
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(200%);
+    }
+}
+
+.animate-shimmer {
+    animation: shimmer 2s ease-in-out infinite;
+}
+
+/* Smooth scrollbar styling */
+.scrollbar-none::-webkit-scrollbar {
+    display: none;
+}
+
+.scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* Mobile-specific improvements */
+
+/* Safe area for notched phones */
+@supports (padding: env(safe-area-inset-bottom)) {
+    .safe-bottom {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+}
+
+/* Prevent iOS zoom on input focus */
+@media (max-width: 640px) {
+
+    input,
+    textarea,
+    select {
+        font-size: 16px !important;
+    }
+}
+
+/* Smooth momentum scrolling on mobile */
+.mobile-scroll {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+}
+
+/* Better touch targets on mobile */
+@media (max-width: 640px) {
+    button {
+        min-height: 36px;
+    }
+}
+
+/* Prevent text selection on double-tap for buttons */
+button {
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+}
+
+/* Slide-up animation for sticky panel */
+@keyframes slideUp {
+    from {
+        transform: translateY(8px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.animate-slide-up {
+    animation: slideUp 0.3s ease-out;
+}
