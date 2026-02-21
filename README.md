@@ -23,7 +23,8 @@
 - Automatic **offline fallback** to keyword matching when AI is unavailable
 
 ### 🖥️ Terminal UI
-- Authentic terminal look & feel with dark theme and monospace fonts
+- Authentic terminal look & feel with monospace fonts
+- **Dynamic Theme Switcher** (Hacker, Dark, Cyberpunk)
 - Typewriter text animations for bot responses
 - Typing indicators, glassmorphism, and background effects
 - Fully responsive — works on desktop and mobile
@@ -40,12 +41,21 @@ The AI triggers rich UI widgets based on conversation context:
 | `about` | 👤 Profile Card | Summary and bio |
 | `highlights` | 📊 Achievement Stats | Key career metrics |
 | `resume` | 📄 Resume Download | One-click PDF download |
+| `certifications`| 🏅 Certifications | Display acquired certifications |
+| `feedback` | 💬 Feedback Form | Leave emoji reactions and text feedback |
+| `stats` | 📊 Visitor Stats | Live view counter and feedback stats |
+| `github stats` | 🐙 GitHub Stats | Live GitHub profile metrics |
 | `help` | ⚡ Quick Actions | Navigation buttons for common queries |
 
 ### 🔐 BYOK (Bring Your Own Key)
 - Users can set their own API key via terminal commands
 - Keys stored in `localStorage` (client-side only)
 - `.env` support for default key injection
+
+### 📊 Real-time Stats & Feedback
+- **Firebase Realtime Database** integration
+- Live visitor view counter
+- Interactive feedback module (emoji reactions and text comments)
 
 ---
 
@@ -57,6 +67,7 @@ The AI triggers rich UI widgets based on conversation context:
 | **Styling** | Tailwind CSS 4 |
 | **Icons** | Lucide React |
 | **AI Backend** | Groq API (LLaMA 3.3 70B Versatile) |
+| **Database** | Firebase Realtime Database (for feedback & stats) |
 | **State** | React Hooks (useState, useCallback, useRef) |
 | **Deployment** | Vercel |
 
@@ -145,8 +156,9 @@ npm run preview   # Preview the production build locally
 | Variable | Description | Required |
 |---|---|---|
 | `VITE_GROQ_API_KEY` | Your Groq API key for AI chatbot | Optional* |
+| `VITE_FIREBASE_*` | Firebase config keys (API Key, Project ID, etc) | Optional |
 
-> *If no key is set, the chatbot runs in **offline mode** using keyword matching.
+> *If no Groq key is set, the chatbot runs in **offline mode** using keyword matching. Feedback and Stats require accurate `.env` setup.
 
 ### Terminal Commands
 

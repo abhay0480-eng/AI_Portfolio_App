@@ -100,9 +100,14 @@ const commandRegistry = [
         widget: 'visitor-stats',
     },
     {
+        match: (cmd) => cmd.includes('github') || cmd.includes('repo') || cmd.includes('commit'),
+        response: "Fetching live GitHub statistics and top repositories... 🐙",
+        widget: 'github-stats',
+    },
+    {
         match: (cmd) => cmd.includes('help'),
         response:
-            "Available commands: projects, experience, skills, contact, about, highlights, resume, certifications, feedback, stats, profile card, skill chart, timeline, evaluate, full resume, clear, clear cache, cache status. Or just ask me anything!",
+            "Available commands: projects, experience, skills, contact, about, highlights, resume, certifications, feedback, stats, github stats, profile card, skill chart, timeline, evaluate, full resume, clear. Or just ask me anything!",
         widget: 'quick-actions',
     },
 ];

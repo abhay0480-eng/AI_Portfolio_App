@@ -9,6 +9,7 @@ import StickyQuickActions from './components/StickyQuickActions';
 import EmojiReactions from './components/EmojiReactions';
 import { incrementView } from './services/analyticsService';
 import { StatsProvider, useStats } from './contexts/StatsContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 import { useEffect } from 'react';
 
 function AppContent() {
@@ -34,12 +35,12 @@ function AppContent() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-black text-gray-200 font-mono p-2 sm:p-4 md:p-8 flex items-center justify-center selection:bg-green-500/30 selection:text-green-200 overflow-hidden">
+    <div className="min-h-screen bg-theme-base text-theme-main font-mono p-2 sm:p-4 md:p-8 flex items-center justify-center selection-theme overflow-hidden transition-colors duration-500">
 
       <BackgroundDecor />
 
       {/* Main Terminal Window */}
-      <div className="relative z-10 w-full max-w-5xl h-[100dvh] sm:h-[92vh] md:h-[85vh] bg-gray-950/90 backdrop-blur-md sm:rounded-lg border border-gray-800 shadow-2xl flex flex-col overflow-hidden ring-1 ring-white/10">
+      <div className="relative z-10 w-full max-w-5xl h-[100dvh] sm:h-[92vh] md:h-[85vh] bg-theme-panel/90 backdrop-blur-md sm:rounded-lg border border-theme shadow-theme flex flex-col overflow-hidden ring-1 ring-white/10 transition-colors duration-500">
 
         <TerminalHeader aiMode={aiMode} sarvamMode={sarvamMode} viewCount={viewCount} />
 
@@ -76,8 +77,10 @@ function AppContent() {
 
 export default function App() {
   return (
-    <StatsProvider>
-      <AppContent />
-    </StatsProvider>
+    <ThemeProvider>
+      <StatsProvider>
+        <AppContent />
+      </StatsProvider>
+    </ThemeProvider>
   );
 }

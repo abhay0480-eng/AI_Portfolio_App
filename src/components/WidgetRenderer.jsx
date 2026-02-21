@@ -14,11 +14,12 @@ const SkillRadar = React.lazy(() => import('./SkillRadar'));
 const ExperienceTimeline = React.lazy(() => import('./ExperienceTimeline'));
 const CandidateSnapshot = React.lazy(() => import('./CandidateSnapshot'));
 const InteractiveResume = React.lazy(() => import('./InteractiveResume'));
+const GitHubStatsWidget = React.lazy(() => import('./GitHubStatsWidget'));
 
 // Loading fallback for lazy components
 const LazyFallback = () => (
-    <div className="flex items-center gap-2 p-4 text-xs font-mono text-green-500 animate-pulse">
-        <span className="inline-block w-3 h-3 border-2 border-green-500 border-t-transparent rounded-full animate-spin" />
+    <div className="flex items-center gap-2 p-4 text-xs font-mono text-theme-primary animate-pulse">
+        <span className="inline-block w-3 h-3 border-2 border-theme-primary border-t-transparent rounded-full animate-spin" />
         Loading module...
     </div>
 );
@@ -128,6 +129,7 @@ const widgetMap = {
             { label: '🏅 Certifications', cmd: 'certifications' },
             { label: '💬 Feedback', cmd: 'feedback' },
             { label: '📊 Stats', cmd: 'stats' },
+            { label: '🐙 GitHub Stats', cmd: 'github stats' },
         ];
 
         return (
@@ -136,7 +138,7 @@ const widgetMap = {
                     <button
                         key={action.cmd}
                         onClick={() => onCommand(action.cmd)}
-                        className="px-3 py-1.5 text-xs font-mono text-green-400 border border-green-500/50 rounded bg-green-900/10 hover:bg-green-500/20 hover:text-green-300 transition-all flex items-center gap-2"
+                        className="px-3 py-1.5 text-xs font-mono text-theme-primary border border-theme rounded bg-theme-panel hover:bg-theme-primary/10 hover:text-theme-primary transition-all flex items-center gap-2"
                     >
                         <ChevronRight size={12} />
                         {action.label}
@@ -147,9 +149,9 @@ const widgetMap = {
     },
 
     profile: () => (
-        <div className="mt-4 p-4 border border-green-500/20 bg-green-900/10 rounded max-w-xl animate-in fade-in zoom-in-95 duration-500">
-            <p className="text-green-100 text-sm font-mono leading-relaxed">{resumeData.profile.summary}</p>
-            <div className="mt-3 text-xs text-gray-500 font-mono">
+        <div className="mt-4 p-4 border border-theme bg-theme-panel/50 rounded max-w-xl animate-in fade-in zoom-in-95 duration-500">
+            <p className="text-theme-main text-sm font-mono leading-relaxed">{resumeData.profile.summary}</p>
+            <div className="mt-3 text-xs text-theme-muted font-mono">
                 <p>📍 {resumeData.profile.location}</p>
                 <p>🎓 {resumeData.education.degree} — {resumeData.education.school} ({resumeData.education.period})</p>
             </div>
@@ -206,6 +208,7 @@ const widgetMap = {
     'timeline': () => <ExperienceTimeline />,
     'candidate-snapshot': () => <CandidateSnapshot />,
     'full-resume': () => <InteractiveResume />,
+    'github-stats': () => <GitHubStatsWidget />,
 };
 
 const WidgetRenderer = ({ type, onCommand }) => {
@@ -220,7 +223,7 @@ const WidgetRenderer = ({ type, onCommand }) => {
     if (!rendered) return null;
 
     // Wrap lazy-loaded widgets in Suspense
-    const lazyTypes = ['hr-profile', 'skill-radar', 'timeline', 'candidate-snapshot', 'full-resume'];
+    const lazyTypes = ['hr-profile', 'skill-radar', 'timeline', 'candidate-snapshot', 'full-resume', 'github-stats'];
     if (lazyTypes.includes(type)) {
         return <Suspense fallback={<LazyFallback />}>{rendered}</Suspense>;
     }

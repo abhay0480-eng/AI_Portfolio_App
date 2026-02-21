@@ -2,9 +2,9 @@ import React, { forwardRef } from 'react';
 import { Send } from 'lucide-react';
 
 const ChatInput = forwardRef(({ input, onInputChange, onSubmit, aiMode = false, sarvamMode = false }, ref) => (
-    <div className="p-3 sm:p-4 bg-gray-900/50 border-t border-gray-800">
+    <div className="p-3 sm:p-4 bg-theme-panel/50 border-t border-theme transition-colors duration-300">
         <form onSubmit={onSubmit} className="relative flex items-center group">
-            <span className="absolute left-3 text-green-500 font-bold font-mono text-xs sm:text-sm pointer-events-none select-none">
+            <span className="absolute left-3 text-theme-primary font-bold font-mono text-xs sm:text-sm pointer-events-none select-none transition-colors duration-300">
                 guest@abhay:~$
             </span>
             <input
@@ -19,12 +19,12 @@ const ChatInput = forwardRef(({ input, onInputChange, onSubmit, aiMode = false, 
                             ? "Ask me anything about Abhay..."
                             : "Type 'help' for commands..."
                 }
-                className="w-full bg-gray-950 border border-gray-700 text-green-400 font-mono text-xs sm:text-sm rounded-md py-2.5 sm:py-3 pl-32 sm:pl-36 pr-11 sm:pr-12 focus:outline-none focus:border-green-500/50 focus:ring-1 focus:ring-green-500/20 transition-all shadow-inner"
+                className="w-full bg-theme-base border border-theme text-theme-primary font-mono text-xs sm:text-sm rounded-md py-2.5 sm:py-3 pl-32 sm:pl-36 pr-11 sm:pr-12 focus:outline-none focus:border-theme focus:ring-1 focus:ring-theme transition-colors duration-300 shadow-inner"
                 autoComplete="off"
             />
             <button
                 type="submit"
-                className="absolute right-2 p-1.5 bg-green-900/20 text-green-500 rounded hover:bg-green-500 hover:text-black transition-colors active:scale-90"
+                className="absolute right-2 p-1.5 bg-theme-panel text-theme-primary rounded hover:bg-theme-primary hover:text-black transition-colors active:scale-90 opacity-80 hover:opacity-100"
                 disabled={!input.trim()}
             >
                 <Send size={16} />

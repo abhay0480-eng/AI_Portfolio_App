@@ -1,5 +1,148 @@
 @import "tailwindcss";
 
+/* -------------------------------------
+   THEME PALETTES
+   ------------------------------------- */
+
+/* Hacker (Default / Matrix Green) */
+.theme-hacker {
+    --color-primary: #22c55e;
+    /* text-green-500 */
+    --color-primary-hover: #16a34a;
+    /* text-green-600 */
+    --color-bg-base: #000000;
+    /* bg-black */
+    --color-bg-panel: #030712;
+    /* bg-gray-950 */
+    --color-bg-panel-hover: #111827;
+    /* bg-gray-900 */
+    --color-border: #1f2937;
+    /* border-gray-800 */
+    --color-text-main: #e5e7eb;
+    /* text-gray-200 */
+    --color-text-muted: #9ca3af;
+    /* text-gray-400 */
+    --color-glow: rgba(34, 197, 94, 0.2);
+    /* For syntax highlights / secondary accents */
+    --color-accent-1: #eab308;
+    /* yellow-500 */
+    --color-accent-2: #3b82f6;
+    /* blue-500 */
+}
+
+/* Dark (Sleek / Professional Blue) */
+.theme-dark {
+    --color-primary: #60a5fa;
+    /* text-blue-400 */
+    --color-primary-hover: #3b82f6;
+    /* text-blue-500 */
+    --color-bg-base: #020617;
+    /* Slate 950 */
+    --color-bg-panel: #0f172a;
+    /* Slate 900 */
+    --color-bg-panel-hover: #1e293b;
+    /* Slate 800 */
+    --color-border: #334155;
+    /* Slate 700 */
+    --color-text-main: #f8fafc;
+    /* Slate 50 */
+    --color-text-muted: #94a3b8;
+    /* Slate 400 */
+    --color-glow: rgba(96, 165, 250, 0.2);
+    --color-accent-1: #10b981;
+    /* emerald-500 */
+    --color-accent-2: #c084fc;
+    /* purple-400 */
+}
+
+/* Cyberpunk (Neon Pink/Cyan/Yellow) */
+.theme-cyberpunk {
+    --color-primary: #f472b6;
+    /* text-pink-400 */
+    --color-primary-hover: #db2777;
+    /* text-pink-600 */
+    --color-bg-base: #09090b;
+    /* Zinc 950 */
+    --color-bg-panel: #18181b;
+    /* Zinc 900 */
+    --color-bg-panel-hover: #27272a;
+    /* Zinc 800 */
+    --color-border: #c026d3;
+    /* border-fuchsia-600 */
+    --color-text-main: #fdf2f8;
+    /* pink-50 */
+    --color-text-muted: #f472b6;
+    /* text-pink-400 */
+    --color-glow: rgba(244, 114, 182, 0.3);
+    /* Neon accents */
+    --color-accent-1: #22d3ee;
+    /* cyan-400 */
+    --color-accent-2: #fef08a;
+    /* yellow-200 */
+}
+
+/* Fallback to hacker if no theme class is present */
+:root {
+    --color-primary: #22c55e;
+    --color-primary-hover: #16a34a;
+    --color-bg-base: #000000;
+    --color-bg-panel: #030712;
+    --color-bg-panel-hover: #111827;
+    --color-border: #1f2937;
+    --color-text-main: #e5e7eb;
+    --color-text-muted: #9ca3af;
+    --color-glow: rgba(34, 197, 94, 0.2);
+    --color-accent-1: #eab308;
+    --color-accent-2: #3b82f6;
+}
+
+/* Apply CSS vars to Tailwind's global scope manually to override utilities cleanly. 
+   Wait... Since we don't have access to tailwind.config.js (Vite + Tailwind CSS v4 likely uses @theme in CSS),
+   the easier way for Tailwind v4 is defining custom utility classes, OR updating existing elements directly.
+   To avoid breaking all existing 'text-green-500' classes, we can redefine what 'text-green-500' means dynamically,
+   OR we can add a few specific custom classes here. Let's create utility aliases. */
+
+.text-theme-primary {
+    color: var(--color-primary);
+}
+
+.text-theme-main {
+    color: var(--color-text-main);
+}
+
+.text-theme-muted {
+    color: var(--color-text-muted);
+}
+
+.bg-theme-base {
+    background-color: var(--color-bg-base);
+}
+
+.bg-theme-panel {
+    background-color: var(--color-bg-panel);
+}
+
+.bg-theme-panel-hover:hover {
+    background-color: var(--color-bg-panel-hover);
+}
+
+.border-theme {
+    border-color: var(--color-border);
+}
+
+.ring-theme {
+    --tw-ring-color: var(--color-glow);
+}
+
+.shadow-theme {
+    box-shadow: 0 0 15px var(--color-glow);
+}
+
+.selection-theme::selection {
+    background-color: var(--color-glow);
+    color: var(--color-primary);
+}
+
 /* Shimmer animation for skill bars */
 @keyframes shimmer {
     0% {
