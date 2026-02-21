@@ -1,4 +1,5 @@
 import { resumeData } from '../data/resumeData';
+import { getCachedResponse, setCachedResponse } from './cacheService';
 
 // --- localStorage key for Sarvam API key ---
 const SARVAM_STORAGE_KEY = 'abhayos_sarvam_api_key';
@@ -71,6 +72,17 @@ export async function askSarvam(userMessage) {
         throw new Error('No Sarvam API key configured. Use: export SARVAM_KEY=your_key');
     }
 
+    // Check cache first
+    const cached = getCachedResponse(userMessage);
+    if (cached) {
+        sarvamHistory.push({ role: 'user', content: userMessage });
+        sarvamHistory.push({ role: 'assistant', content: cached });
+        if (sarvamHistory.length > 40) {
+            sarvamHistory = sarvamHistory.slice(-40);
+        }
+        return { text: cached, fromCache: true };
+    }
+
     sarvamHistory.push({ role: 'user', content: userMessage });
 
     const messages = [
@@ -113,7 +125,10 @@ export async function askSarvam(userMessage) {
         sarvamHistory = sarvamHistory.slice(-40);
     }
 
-    return aiText;
+    // Store in cache for future identical prompts
+    setCachedResponse(userMessage, aiText);
+
+    return { text: aiText, fromCache: false };
 }
 
 // --- Translation via Free Chat (₹0/token) ---
@@ -134,7 +149,16 @@ export function getSupportedLanguages() {
     return Object.entries(LANG_NAMES).map(([code, name]) => ({ code, name }));
 }
 
+// --- Translation Cache (in-memory) ---
+const translationCache = new Map();
+
 export async function translateWithSarvam(text, targetLangCode) {
+    // Check translation cache first
+    const cacheKey = `${targetLangCode}::${text}`;
+    if (translationCache.has(cacheKey)) {
+        return translationCache.get(cacheKey);
+    }
+
     const apiKey = getSarvamKey();
     if (!apiKey) {
         throw new Error('No Sarvam API key. Set one via: export SARVAM_KEY=your_key');
@@ -170,5 +194,10 @@ export async function translateWithSarvam(text, targetLangCode) {
     }
 
     const data = await response.json();
-    return data?.choices?.[0]?.message?.content || 'Translation failed.';
+    const result = data?.choices?.[0]?.message?.content || 'Translation failed.';
+
+    // Cache the result
+    translationCache.set(cacheKey, result);
+
+    return result;
 }

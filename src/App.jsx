@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useChatbot } from './hooks/useChatbot';
 import BackgroundDecor from './components/BackgroundDecor';
 import TerminalHeader from './components/TerminalHeader';
@@ -7,9 +7,11 @@ import TypingIndicator from './components/TypingIndicator';
 import ChatInput from './components/ChatInput';
 import StickyQuickActions from './components/StickyQuickActions';
 import EmojiReactions from './components/EmojiReactions';
-import { incrementView, subscribeToStats } from './services/analyticsService';
+import { incrementView } from './services/analyticsService';
+import { StatsProvider, useStats } from './contexts/StatsContext';
+import { useEffect } from 'react';
 
-export default function App() {
+function AppContent() {
   const {
     input,
     setInput,
@@ -23,15 +25,12 @@ export default function App() {
     handleSubmit,
   } = useChatbot();
 
-  const [viewCount, setViewCount] = useState(0);
+  const stats = useStats();
+  const viewCount = stats.views || 0;
 
-  // Increment view on first load & subscribe to stats
+  // Increment view on first load
   useEffect(() => {
     incrementView();
-    const unsub = subscribeToStats((data) => {
-      setViewCount(data.views || 0);
-    });
-    return unsub;
   }, []);
 
   return (
@@ -72,5 +71,13 @@ export default function App() {
         />
       </div>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <StatsProvider>
+      <AppContent />
+    </StatsProvider>
   );
 }

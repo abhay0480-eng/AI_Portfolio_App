@@ -1,16 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Eye, Heart, MessageSquare, TrendingUp } from 'lucide-react';
-import { subscribeToStats } from '../services/analyticsService';
 import { isFirebaseReady } from '../services/firebaseConfig';
+import { useStats } from '../contexts/StatsContext';
 
 const VisitorStats = () => {
-    const [stats, setStats] = useState({ views: 0, reactions: {}, feedbackCount: 0 });
-
-    useEffect(() => {
-        if (!isFirebaseReady()) return;
-        const unsub = subscribeToStats(setStats);
-        return unsub;
-    }, []);
+    const stats = useStats();
 
     const totalReactions = Object.values(stats.reactions || {}).reduce((a, b) => a + (b || 0), 0);
     const topReaction = Object.entries(stats.reactions || {}).sort((a, b) => b[1] - a[1])[0];

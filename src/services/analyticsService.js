@@ -13,8 +13,10 @@ import {
 const STATS_DOC = 'portfolio-stats';
 const VIEW_SESSION_KEY = 'abhayos_viewed';
 
-// Helper: ensure the stats document exists
+// Helper: ensure the stats document exists (memoized — only checks once per session)
+let cachedStatsRef = null;
 async function ensureStatsDoc() {
+    if (cachedStatsRef) return cachedStatsRef;
     const ref = doc(db, 'analytics', STATS_DOC);
     const snap = await getDoc(ref);
     if (!snap.exists()) {
@@ -24,6 +26,7 @@ async function ensureStatsDoc() {
             feedbackCount: 0,
         });
     }
+    cachedStatsRef = ref;
     return ref;
 }
 

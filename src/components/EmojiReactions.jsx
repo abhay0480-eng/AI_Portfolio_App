@@ -1,25 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { addReaction, subscribeToStats } from '../services/analyticsService';
+import React, { useState } from 'react';
+import { addReaction } from '../services/analyticsService';
 import { isFirebaseReady } from '../services/firebaseConfig';
+import { useStats } from '../contexts/StatsContext';
 
 const EMOJIS = ['🔥', '💯', '🚀', '❤️', '👏', '🤩'];
 
 const EmojiReactions = () => {
-    const [reactions, setReactions] = useState({});
+    const stats = useStats();
+    const reactions = stats.reactions || {};
     const [pulsing, setPulsing] = useState(null);
     const [reacted, setReacted] = useState(() => {
         try {
             return JSON.parse(sessionStorage.getItem('abhayos_reactions') || '{}');
         } catch { return {}; }
     });
-
-    useEffect(() => {
-        if (!isFirebaseReady()) return;
-        const unsub = subscribeToStats((data) => {
-            setReactions(data.reactions || {});
-        });
-        return unsub;
-    }, []);
 
     if (!isFirebaseReady()) return null;
 
@@ -48,8 +42,8 @@ const EmojiReactions = () => {
                             onClick={() => handleReaction(emoji)}
                             disabled={reacted[emoji]}
                             className={`relative flex items-center gap-0.5 px-1.5 py-1 rounded-md text-sm transition-all active:scale-90 ${reacted[emoji]
-                                    ? 'bg-green-900/20 border border-green-500/30 cursor-default'
-                                    : 'hover:bg-gray-800 border border-transparent hover:border-gray-700 cursor-pointer'
+                                ? 'bg-green-900/20 border border-green-500/30 cursor-default'
+                                : 'hover:bg-gray-800 border border-transparent hover:border-gray-700 cursor-pointer'
                                 } ${pulsing === emoji ? 'animate-bounce' : ''}`}
                         >
                             <span className={`${pulsing === emoji ? 'scale-125' : ''} transition-transform`}>

@@ -1,17 +1,27 @@
-import React from 'react';
+import React, { Suspense, useMemo } from 'react';
 import { ChevronRight, Mail, Linkedin, Github, Download, TrendingUp, Zap, Award, Clock } from 'lucide-react';
 import { resumeData } from '../data/resumeData';
 import SkillTag from './SkillTag';
 import ProjectCard from './ProjectCard';
 import ExperienceCard from './ExperienceCard';
-import HRProfileCard from './HRProfileCard';
-import SkillRadar from './SkillRadar';
-import ExperienceTimeline from './ExperienceTimeline';
-import CandidateSnapshot from './CandidateSnapshot';
-import InteractiveResume from './InteractiveResume';
 import CertificationsWidget from './CertificationsWidget';
 import FeedbackForm from './FeedbackForm';
 import VisitorStats from './VisitorStats';
+
+// Lazy-load heavy widget components (only loaded when user triggers them)
+const HRProfileCard = React.lazy(() => import('./HRProfileCard'));
+const SkillRadar = React.lazy(() => import('./SkillRadar'));
+const ExperienceTimeline = React.lazy(() => import('./ExperienceTimeline'));
+const CandidateSnapshot = React.lazy(() => import('./CandidateSnapshot'));
+const InteractiveResume = React.lazy(() => import('./InteractiveResume'));
+
+// Loading fallback for lazy components
+const LazyFallback = () => (
+    <div className="flex items-center gap-2 p-4 text-xs font-mono text-green-500 animate-pulse">
+        <span className="inline-block w-3 h-3 border-2 border-green-500 border-t-transparent rounded-full animate-spin" />
+        Loading module...
+    </div>
+);
 
 // --- Dynamic widget config map ---
 const widgetMap = {
@@ -200,8 +210,22 @@ const widgetMap = {
 
 const WidgetRenderer = ({ type, onCommand }) => {
     const Widget = widgetMap[type];
-    if (!Widget) return null;
-    return <Widget onCommand={onCommand} />;
+
+    // Memoize the rendered widget to avoid re-calling factory on identical props
+    const rendered = useMemo(() => {
+        if (!Widget) return null;
+        return <Widget onCommand={onCommand} />;
+    }, [type, onCommand]);
+
+    if (!rendered) return null;
+
+    // Wrap lazy-loaded widgets in Suspense
+    const lazyTypes = ['hr-profile', 'skill-radar', 'timeline', 'candidate-snapshot', 'full-resume'];
+    if (lazyTypes.includes(type)) {
+        return <Suspense fallback={<LazyFallback />}>{rendered}</Suspense>;
+    }
+
+    return rendered;
 };
 
 export default React.memo(WidgetRenderer);

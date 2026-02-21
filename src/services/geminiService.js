@@ -1,4 +1,5 @@
 import { resumeData } from '../data/resumeData';
+import { getCachedResponse, setCachedResponse } from './cacheService';
 
 // localStorage key name for user-provided BYOK override
 const STORAGE_KEY = 'abhayos_ai_api_key';
@@ -73,6 +74,18 @@ export async function askGemini(userMessage) {
         throw new Error('No API key configured. Use: export AI_KEY=your_key');
     }
 
+    // Check cache first
+    const cached = getCachedResponse(userMessage);
+    if (cached) {
+        // Still add to conversation history so context stays coherent
+        conversationHistory.push({ role: 'user', content: userMessage });
+        conversationHistory.push({ role: 'assistant', content: cached });
+        if (conversationHistory.length > 40) {
+            conversationHistory = conversationHistory.slice(-40);
+        }
+        return { text: cached, fromCache: true };
+    }
+
     // Add user message to history
     conversationHistory.push({
         role: 'user',
@@ -137,5 +150,8 @@ export async function askGemini(userMessage) {
         conversationHistory = conversationHistory.slice(-40);
     }
 
-    return aiText;
+    // Store in cache for future identical prompts
+    setCachedResponse(userMessage, aiText);
+
+    return { text: aiText, fromCache: false };
 }

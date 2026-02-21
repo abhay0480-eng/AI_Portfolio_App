@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { askGemini, setApiKey, getApiKey, clearApiKey, isAiEnabled, resetConversation } from '../services/geminiService';
 import { askSarvam, setSarvamKey, getSarvamKey, clearSarvamKey, isSarvamEnabled, resetSarvamConversation } from '../services/sarvamService';
 import { parseAiResponse } from '../utils/parseAiResponse';
+import { clearResponseCache, getCacheStats } from '../services/cacheService';
 
 // --- Command Registry (offline fallback) ---
 const commandRegistry = [
@@ -101,7 +102,7 @@ const commandRegistry = [
     {
         match: (cmd) => cmd.includes('help'),
         response:
-            "Available commands: projects, experience, skills, contact, about, highlights, resume, certifications, feedback, stats, profile card, skill chart, timeline, evaluate, full resume, clear. Or just ask me anything!",
+            "Available commands: projects, experience, skills, contact, about, highlights, resume, certifications, feedback, stats, profile card, skill chart, timeline, evaluate, full resume, clear, clear cache, cache status. Or just ask me anything!",
         widget: 'quick-actions',
     },
 ];
@@ -130,6 +131,7 @@ export function useChatbot() {
     const [sarvamMode, setSarvamMode] = useState(false);
     const scrollRef = useRef(null);
     const inputRef = useRef(null);
+    const isProcessingRef = useRef(false);
 
     // Auto-scroll to bottom
     useEffect(() => {
@@ -220,6 +222,21 @@ export function useChatbot() {
             return { text: "🗑️ Sarvam API key removed. Translation features disabled.", widgets: ['quick-actions'] };
         }
 
+        // clear cache
+        if (command === 'clear cache') {
+            clearResponseCache();
+            return { text: "🗑️ Response cache cleared. All future prompts will fetch fresh responses from the API.", widgets: [] };
+        }
+
+        // cache status
+        if (command === 'cache status') {
+            const stats = getCacheStats();
+            return {
+                text: `📦 Cache Status:\n  Entries: ${stats.entries}/${stats.maxEntries}\n  TTL: ${stats.ttlHours} hours\n  Storage: localStorage + in-memory`,
+                widgets: [],
+            };
+        }
+
         // ai on
         if (command === 'ai on') {
             if (isAiEnabled()) {
@@ -259,8 +276,13 @@ export function useChatbot() {
         return null; // Not a special command
     }, [aiMode, sarvamMode]);
 
-    const handleCommand = useCallback((cmd) => {
+    const handleCommandInner = useCallback((cmd) => {
         const command = cmd.toLowerCase().trim();
+
+        // --- Debounce: reject if an AI request is already in flight ---
+        if (isProcessingRef.current && !['clear', 'cls', 'clear cache', 'cache status', 'ai status', 'sarvam status'].includes(command)) {
+            return;
+        }
 
         // Add User Message immediately
         const newUserMsg = { id: Date.now(), type: 'user', text: cmd };
@@ -291,18 +313,24 @@ export function useChatbot() {
         }
 
         setIsBotTyping(true);
+        isProcessingRef.current = true;
 
         // --- Sarvam Mode: use Sarvam-M ---
         if (sarvamMode && isSarvamEnabled()) {
             askSarvam(cmd)
-                .then((rawResponse) => {
+                .then((result) => {
+                    const rawResponse = result.text || result;
+                    const fromCache = result.fromCache || false;
                     const { text, widgets } = parseAiResponse(rawResponse);
+                    const displayText = fromCache
+                        ? `⚡ Instant response (cached)\n\n${text}`
+                        : text;
                     setMessages((prev) => [
                         ...prev,
                         {
                             id: Date.now() + 1,
                             type: 'bot',
-                            text: text || "I processed your request but have nothing to display.",
+                            text: displayText || "I processed your request but have nothing to display.",
                             widgets,
                         },
                     ]);
@@ -335,6 +363,7 @@ export function useChatbot() {
                 })
                 .finally(() => {
                     setIsBotTyping(false);
+                    isProcessingRef.current = false;
                 });
             return;
         }
@@ -342,14 +371,19 @@ export function useChatbot() {
         // --- AI Mode: use Groq ---
         if (aiMode && isAiEnabled()) {
             askGemini(cmd)
-                .then((rawResponse) => {
+                .then((result) => {
+                    const rawResponse = result.text || result;
+                    const fromCache = result.fromCache || false;
                     const { text, widgets } = parseAiResponse(rawResponse);
+                    const displayText = fromCache
+                        ? `⚡ Instant response (cached)\n\n${text}`
+                        : text;
                     setMessages((prev) => [
                         ...prev,
                         {
                             id: Date.now() + 1,
                             type: 'bot',
-                            text: text || "I processed your request but have nothing to display.",
+                            text: displayText || "I processed your request but have nothing to display.",
                             widgets,
                         },
                     ]);
@@ -381,6 +415,7 @@ export function useChatbot() {
                 })
                 .finally(() => {
                     setIsBotTyping(false);
+                    isProcessingRef.current = false;
                 });
             return;
         }
@@ -403,8 +438,14 @@ export function useChatbot() {
                 },
             ]);
             setIsBotTyping(false);
+            isProcessingRef.current = false;
         }, 400 + Math.random() * 600);
     }, [aiMode, sarvamMode, handleSpecialCommand]);
+
+    // --- Stable handleCommand ref (identity never changes, so React.memo on ChatMessage works) ---
+    const handleCommandRef = useRef(handleCommandInner);
+    handleCommandRef.current = handleCommandInner;
+    const handleCommand = useCallback((...args) => handleCommandRef.current(...args), []);
 
     const handleSubmit = useCallback(
         (e) => {
