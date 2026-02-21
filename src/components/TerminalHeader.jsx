@@ -1,7 +1,7 @@
 import React from 'react';
-import { Terminal, Sparkles } from 'lucide-react';
+import { Terminal, Sparkles, Eye } from 'lucide-react';
 
-const TerminalHeader = ({ aiMode = false, sarvamMode = false }) => (
+const TerminalHeader = ({ aiMode = false, sarvamMode = false, viewCount = 0 }) => (
     <div className="h-9 sm:h-10 bg-gray-900 border-b border-gray-800 flex items-center justify-between px-3 sm:px-4 select-none shrink-0">
         <div className="flex items-center gap-1.5 sm:gap-2 text-green-500">
             <Terminal size={14} className="sm:w-4 sm:h-4" />
@@ -11,6 +11,14 @@ const TerminalHeader = ({ aiMode = false, sarvamMode = false }) => (
             </span>
         </div>
         <div className="flex items-center gap-2 sm:gap-3">
+            {/* View Counter */}
+            {viewCount > 0 && (
+                <div className="flex items-center gap-1 text-gray-500">
+                    <Eye size={10} />
+                    <span className="text-[9px] sm:text-[10px] font-mono">{viewCount}</span>
+                </div>
+            )}
+
             {/* AI Mode Indicator */}
             <div className="flex items-center gap-1 sm:gap-1.5">
                 {sarvamMode ? (

@@ -84,9 +84,24 @@ const commandRegistry = [
         widget: 'full-resume',
     },
     {
+        match: (cmd) => cmd.includes('certification') || cmd.includes('license') || cmd.includes('certificate'),
+        response: "Loading certifications and licenses...",
+        widget: 'certifications',
+    },
+    {
+        match: (cmd) => cmd.includes('feedback') || cmd.includes('review') || cmd.includes('rate'),
+        response: "I'd love to hear your thoughts! 💬",
+        widget: 'feedback',
+    },
+    {
+        match: (cmd) => cmd.includes('stats') || cmd.includes('analytics') || cmd.includes('views'),
+        response: "Here are the live visitor analytics 📊",
+        widget: 'visitor-stats',
+    },
+    {
         match: (cmd) => cmd.includes('help'),
         response:
-            "Available commands: projects, experience, skills, contact, about, highlights, resume, profile card, skill chart, timeline, evaluate, full resume, clear. Or just ask me anything!",
+            "Available commands: projects, experience, skills, contact, about, highlights, resume, certifications, feedback, stats, profile card, skill chart, timeline, evaluate, full resume, clear. Or just ask me anything!",
         widget: 'quick-actions',
     },
 ];

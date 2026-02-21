@@ -117,4 +117,39 @@ export const resumeData = {
         "90+ Lighthouse audit scores",
         "Healthcare & E-commerce domain expertise",
     ],
+    certifications: [
+        {
+            name: "Bring AI to Work Workshop",
+            issuer: "Google",
+            issued: "Sep 2025",
+            credentialId: "0644198153AK",
+            skills: ["Artificial Intelligence (AI)"],
+        },
+        {
+            name: "Foundations of User Experience (UX) Design",
+            issuer: "Google",
+            issued: "Feb 2022",
+            credentialId: "5DXT5JL3D595",
+            skills: ["Redux.js"],
+        },
+        {
+            name: "Career Edge - Knockdown the Lockdown",
+            issuer: "TCS iON LifeLong Learning",
+            credentialId: "119854-8611155-1016",
+            skills: [],
+        },
+        {
+            name: "Python 101 for Data Science",
+            issuer: "Cognitive Class",
+            credentialId: "154ff6b46a154215941d9c64d2910825",
+            skills: ["Python", "Data Science"],
+        },
+        {
+            name: "Google Analytics for Beginners",
+            issuer: "Google Analytics Academy",
+            issued: "Jun 2020",
+            expired: "Jun 2023",
+            skills: ["Google Analytics"],
+        },
+    ],
 };

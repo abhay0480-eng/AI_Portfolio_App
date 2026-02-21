@@ -1,27 +1,27 @@
 import React from 'react';
-import { User, Cpu } from 'lucide-react';
+import { User } from 'lucide-react';
 import TypewriterText from './TypewriterText';
 import WidgetRenderer from './WidgetRenderer';
 import TranslateButton from './TranslateButton';
 import ListenButton from './ListenButton';
+import AbhayAvatar from './AbhayAvatar';
 
 const ChatMessage = ({ msg, onCommand }) => (
     <div className={`flex flex-col ${msg.type === 'user' ? 'items-end' : 'items-start'}`}>
-        <div className={`max-w-[90%] md:max-w-[80%] ${msg.type === 'user' ? 'order-1' : 'order-2'}`}>
-            <div className={`flex items-start gap-3 ${msg.type === 'user' ? 'flex-row-reverse' : ''}`}>
+        <div className={`max-w-[95%] sm:max-w-[90%] md:max-w-[80%] ${msg.type === 'user' ? 'order-1' : 'order-2'}`}>
+            <div className={`flex items-start gap-2 sm:gap-3 ${msg.type === 'user' ? 'flex-row-reverse' : ''}`}>
 
                 {/* Avatar */}
-                <div
-                    className={`w-8 h-8 rounded flex items-center justify-center shrink-0 ${msg.type === 'user'
-                        ? 'bg-blue-900/30 text-blue-400'
-                        : 'bg-green-900/30 text-green-400'
-                        }`}
-                >
-                    {msg.type === 'user' ? <User size={16} /> : <Cpu size={16} />}
-                </div>
+                {msg.type === 'user' ? (
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 bg-blue-900/30 text-blue-400">
+                        <User size={16} />
+                    </div>
+                ) : (
+                    <AbhayAvatar size={32} />
+                )}
 
                 {/* Text Content */}
-                <div className="mt-1">
+                <div className="mt-1 min-w-0">
                     <p
                         className={`text-sm md:text-base leading-relaxed ${msg.type === 'user' ? 'text-blue-100' : 'text-green-100'
                             }`}
@@ -43,7 +43,7 @@ const ChatMessage = ({ msg, onCommand }) => (
 
                     {/* Translate & Listen buttons for bot messages */}
                     {msg.type === 'bot' && msg.text && msg.id !== 1 && (
-                        <div className="flex items-center gap-2 mt-2">
+                        <div className="flex items-center gap-2 mt-2 flex-wrap">
                             <ListenButton text={msg.text} />
                             <TranslateButton text={msg.text} />
                         </div>

@@ -9,6 +9,9 @@ import SkillRadar from './SkillRadar';
 import ExperienceTimeline from './ExperienceTimeline';
 import CandidateSnapshot from './CandidateSnapshot';
 import InteractiveResume from './InteractiveResume';
+import CertificationsWidget from './CertificationsWidget';
+import FeedbackForm from './FeedbackForm';
+import VisitorStats from './VisitorStats';
 
 // --- Dynamic widget config map ---
 const widgetMap = {
@@ -93,6 +96,12 @@ const widgetMap = {
         );
     },
 
+    'certifications': () => <CertificationsWidget />,
+
+    'feedback': () => <FeedbackForm />,
+
+    'visitor-stats': () => <VisitorStats />,
+
     'quick-actions': ({ onCommand }) => {
         const actions = [
             { label: 'View Projects', cmd: 'projects' },
@@ -106,6 +115,9 @@ const widgetMap = {
             { label: '🗂️ Timeline', cmd: 'timeline' },
             { label: '🎯 Evaluate', cmd: 'evaluate' },
             { label: '📋 Full Resume', cmd: 'full resume' },
+            { label: '🏅 Certifications', cmd: 'certifications' },
+            { label: '💬 Feedback', cmd: 'feedback' },
+            { label: '📊 Stats', cmd: 'stats' },
         ];
 
         return (

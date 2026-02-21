@@ -16,6 +16,9 @@ const TAG_TO_WIDGET = {
     TIMELINE: 'timeline',
     CANDIDATE_SNAPSHOT: 'candidate-snapshot',
     FULL_RESUME: 'full-resume',
+    CERTIFICATIONS: 'certifications',
+    FEEDBACK: 'feedback',
+    VISITOR_STATS: 'visitor-stats',
 };
 
 const TAG_REGEX = /\[\[([A-Z_]+)\]\]/g;

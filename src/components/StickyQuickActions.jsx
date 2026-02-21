@@ -13,6 +13,9 @@ const QUICK_ACTIONS = [
     { label: 'Timeline', cmd: 'timeline', emoji: '🗂️' },
     { label: 'Evaluate', cmd: 'evaluate', emoji: '🎯' },
     { label: 'Full Resume', cmd: 'full resume', emoji: '📋' },
+    { label: 'Certifications', cmd: 'certifications', emoji: '🏅' },
+    { label: 'Feedback', cmd: 'feedback', emoji: '💬' },
+    { label: 'Stats', cmd: 'stats', emoji: '📊' },
 ];
 
 const StickyQuickActions = ({ onCommand }) => {
