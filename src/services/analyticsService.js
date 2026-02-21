@@ -1,34 +1,17 @@
 import { db, isFirebaseReady } from './firebaseConfig';
 import {
-    doc,
-    getDoc,
-    setDoc,
-    increment,
-    collection,
-    addDoc,
-    onSnapshot,
+    ref,
+    set,
+    update,
+    push,
+    onValue,
     serverTimestamp,
-} from 'firebase/firestore';
+    increment,
+} from 'firebase/database';
 
-const STATS_DOC = 'portfolio-stats';
+const STATS_PATH = 'analytics/portfolio-stats';
+const FEEDBACKS_PATH = 'feedbacks';
 const VIEW_SESSION_KEY = 'abhayos_viewed';
-
-// Helper: ensure the stats document exists (memoized — only checks once per session)
-let cachedStatsRef = null;
-async function ensureStatsDoc() {
-    if (cachedStatsRef) return cachedStatsRef;
-    const ref = doc(db, 'analytics', STATS_DOC);
-    const snap = await getDoc(ref);
-    if (!snap.exists()) {
-        await setDoc(ref, {
-            views: 0,
-            reactions: { '🔥': 0, '💯': 0, '🚀': 0, '❤️': 0, '👏': 0, '🤩': 0 },
-            feedbackCount: 0,
-        });
-    }
-    cachedStatsRef = ref;
-    return ref;
-}
 
 // --- View Counter ---
 export async function incrementView() {
@@ -37,8 +20,8 @@ export async function incrementView() {
     sessionStorage.setItem(VIEW_SESSION_KEY, 'true');
 
     try {
-        const ref = await ensureStatsDoc();
-        await setDoc(ref, { views: increment(1) }, { merge: true });
+        const statsRef = ref(db, STATS_PATH);
+        await update(statsRef, { views: increment(1) });
     } catch (err) {
         console.warn('View increment failed:', err.message);
     }
@@ -49,8 +32,8 @@ export async function addReaction(emoji) {
     if (!isFirebaseReady()) return;
 
     try {
-        const ref = await ensureStatsDoc();
-        await setDoc(ref, { reactions: { [emoji]: increment(1) } }, { merge: true });
+        const reactionsRef = ref(db, `${STATS_PATH}/reactions`);
+        await update(reactionsRef, { [emoji]: increment(1) });
     } catch (err) {
         console.warn('Reaction failed:', err.message);
     }
@@ -61,15 +44,19 @@ export async function submitFeedback(mood, text, name = 'Anonymous') {
     if (!isFirebaseReady()) return false;
 
     try {
-        await addDoc(collection(db, 'feedbacks'), {
+        // 1. Push new feedback entry
+        const feedbacksRef = ref(db, FEEDBACKS_PATH);
+        await push(feedbacksRef, {
             mood,
             text: text || '',
             name,
             timestamp: serverTimestamp(),
         });
 
-        const ref = await ensureStatsDoc();
-        await setDoc(ref, { feedbackCount: increment(1) }, { merge: true });
+        // 2. Increment total feedback count
+        const statsRef = ref(db, STATS_PATH);
+        await update(statsRef, { feedbackCount: increment(1) });
+
         return true;
     } catch (err) {
         console.warn('Feedback submit failed:', err.message);
@@ -79,24 +66,30 @@ export async function submitFeedback(mood, text, name = 'Anonymous') {
 
 // --- Real-time Stats Listener ---
 export function subscribeToStats(callback) {
+    const DEFAULT_STATS = { views: 0, reactions: {}, feedbackCount: 0 };
+
     if (!isFirebaseReady()) {
-        callback({ views: 0, reactions: {}, feedbackCount: 0 });
+        callback(DEFAULT_STATS);
         return () => { };
     }
 
-    const ref = doc(db, 'analytics', STATS_DOC);
-    return onSnapshot(
-        ref,
-        (snap) => {
-            if (snap.exists()) {
-                callback(snap.data());
+    const statsRef = ref(db, STATS_PATH);
+    const unsubscribe = onValue(
+        statsRef,
+        (snapshot) => {
+            if (snapshot.exists()) {
+                // Merge with defaults to ensure all keys exist
+                const data = snapshot.val();
+                callback({ ...DEFAULT_STATS, ...data });
             } else {
-                callback({ views: 0, reactions: {}, feedbackCount: 0 });
+                callback(DEFAULT_STATS);
             }
         },
         (err) => {
             console.warn('Stats listener error:', err.message);
-            callback({ views: 0, reactions: {}, feedbackCount: 0 });
+            callback(DEFAULT_STATS);
         }
     );
+
+    return unsubscribe;
 }

@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
+import { getDatabase } from 'firebase/database';
 
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_FIREBASE_API_KEY || '',
@@ -8,6 +8,7 @@ const firebaseConfig = {
     storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || '',
     messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '',
     appId: import.meta.env.VITE_FIREBASE_APP_ID || '',
+    databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL || 'https://aboutme-eb30c-default-rtdb.asia-southeast1.firebasedatabase.app',
 };
 
 // Only initialize if config is present
@@ -17,7 +18,7 @@ let db = null;
 try {
     if (firebaseConfig.apiKey && firebaseConfig.projectId) {
         app = initializeApp(firebaseConfig);
-        db = getFirestore(app);
+        db = getDatabase(app);
     }
 } catch (error) {
     console.warn('Firebase init failed:', error.message);
