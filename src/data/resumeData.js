@@ -73,7 +73,7 @@ export const resumeData = {
             title: "Quiz Application",
             stack: "React Router, Ant Design",
             desc: "Interactive quiz engine using Context API and compound component patterns for complex user flows.",
-            link: "#",
+            link: "https://quiz-app-fm.vercel.app/",
         },
     ],
     education: {
@@ -98,7 +98,7 @@ export const resumeData = {
     availability: {
         status: "open",
         label: "Open to Opportunities",
-        noticePeriod: "Immediate / 30 days",
+        noticePeriod: "90 days",
         preferredRoles: ["Senior Frontend Developer", "React Architect", "Tech Lead"],
         workMode: ["Remote", "Hybrid", "On-site"],
     },

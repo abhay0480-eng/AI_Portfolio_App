@@ -10,7 +10,7 @@ const MOODS = [
     { emoji: '😕', label: 'Meh' },
 ];
 
-const FeedbackForm = () => {
+const FeedbackForm = ({ onSkip, onSubmitSuccess }) => {
     const [selectedMood, setSelectedMood] = useState(null);
     const [text, setText] = useState('');
     const [name, setName] = useState('');
@@ -23,6 +23,14 @@ const FeedbackForm = () => {
                 <p className="text-xs font-mono text-yellow-400">
                     ⚠️ Firebase not configured. Feedback feature requires Firebase setup.
                 </p>
+                {onSkip && (
+                    <button
+                        onClick={onSkip}
+                        className="mt-2 text-xs text-yellow-500 hover:text-yellow-400 underline"
+                    >
+                        Skip
+                    </button>
+                )}
             </div>
         );
     }
@@ -45,11 +53,13 @@ const FeedbackForm = () => {
         if (!selectedMood || isSubmitting) return;
         setIsSubmitting(true);
         try {
-            const success = await submitFeedback(selectedMood, text, name || 'Anonymous');
+            await submitFeedback(selectedMood, text, name || 'Anonymous');
             setSubmitted(true);
+            if (onSubmitSuccess) setTimeout(onSubmitSuccess, 1500);
         } catch (err) {
             console.warn('Feedback error:', err);
             setSubmitted(true); // Still show thank you on error
+            if (onSubmitSuccess) setTimeout(onSubmitSuccess, 1500);
         } finally {
             setIsSubmitting(false);
         }
@@ -104,24 +114,34 @@ const FeedbackForm = () => {
                 className="w-full bg-gray-950 border border-gray-700 text-green-400 font-mono text-xs rounded-md px-3 py-2 resize-none focus:outline-none focus:border-green-500/50 transition-colors"
             />
 
-            {/* Submit */}
-            <button
-                onClick={handleSubmit}
-                disabled={!selectedMood || isSubmitting}
-                className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-lg font-mono text-xs font-semibold transition-all active:scale-95 ${selectedMood
-                    ? 'bg-green-600 text-black hover:bg-green-500'
-                    : 'bg-gray-800 text-gray-600 cursor-not-allowed'
-                    }`}
-            >
-                {isSubmitting ? (
-                    <span className="animate-pulse">Sending...</span>
-                ) : (
-                    <>
-                        <Send size={12} />
-                        Submit Feedback
-                    </>
+            {/* Submit & Skip */}
+            <div className="flex gap-2">
+                {onSkip && (
+                    <button
+                        onClick={onSkip}
+                        className="flex-1 py-2.5 rounded-lg font-mono text-xs font-semibold bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white transition-colors"
+                    >
+                        Skip
+                    </button>
                 )}
-            </button>
+                <button
+                    onClick={handleSubmit}
+                    disabled={!selectedMood || isSubmitting}
+                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg font-mono text-xs font-semibold transition-all active:scale-95 ${selectedMood
+                        ? 'bg-green-600 text-black hover:bg-green-500'
+                        : 'bg-gray-800 text-gray-600 cursor-not-allowed'
+                        }`}
+                >
+                    {isSubmitting ? (
+                        <span className="animate-pulse">Sending...</span>
+                    ) : (
+                        <>
+                            <Send size={12} />
+                            Submit
+                        </>
+                    )}
+                </button>
+            </div>
         </div>
     );
 };

@@ -2,7 +2,7 @@ import React from 'react';
 import { Terminal, Sparkles, Eye } from 'lucide-react';
 import ThemeSwitcher from './ThemeSwitcher';
 
-const TerminalHeader = ({ aiMode = false, sarvamMode = false, viewCount = 0 }) => (
+const TerminalHeader = ({ aiMode = false, sarvamMode = false, viewCount = 0, onCloseApp }) => (
     <div className="h-9 sm:h-10 bg-theme-panel border-b border-theme flex items-center justify-between px-3 sm:px-4 select-none shrink-0 transition-colors duration-300">
         <div className="flex items-center gap-1.5 sm:gap-2 text-theme-primary transition-colors duration-300">
             <Terminal size={14} className="sm:w-4 sm:h-4" />
@@ -43,7 +43,11 @@ const TerminalHeader = ({ aiMode = false, sarvamMode = false, viewCount = 0 }) =
                     )}
                 </div>
                 <div className="flex gap-1 sm:gap-1.5 ml-1">
-                    <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-red-500/50"></div>
+                    <button
+                        onClick={onCloseApp}
+                        className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-red-500/50 hover:bg-red-500 transition-colors cursor-pointer"
+                        title="Close Session"
+                    ></button>
                     <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-yellow-500/50"></div>
                     <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-green-500/50"></div>
                 </div>
