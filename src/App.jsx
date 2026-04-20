@@ -1,135 +1,93 @@
-import React from 'react';
-import { useChatbot } from './hooks/useChatbot';
-import BackgroundDecor from './components/BackgroundDecor';
-import TerminalHeader from './components/TerminalHeader';
-import ChatMessage from './components/ChatMessage';
-import TypingIndicator from './components/TypingIndicator';
-import ChatInput from './components/ChatInput';
-import StickyQuickActions from './components/StickyQuickActions';
-import EmojiReactions from './components/EmojiReactions';
-import { incrementView } from './services/analyticsService';
-import { StatsProvider, useStats } from './contexts/StatsContext';
-import { ThemeProvider } from './contexts/ThemeContext';
-import { useEffect, useState } from 'react';
-import FeedbackForm from './components/FeedbackForm';
+import React, { useState } from 'react';
+import PORTFOLIO_DATA from './data/portfolioData';
+import Navbar from './components/sections/Navbar';
+import StatsSection from './components/sections/StatsSection';
+import ExperienceSection from './components/sections/ExperienceSection';
+import ProjectsSection from './components/sections/ProjectsSection';
+import InfoHeroSection from './components/sections/InfoHeroSection';
+import SkillsSection from './components/sections/SkillsSection';
+import PhilosophySection from './components/sections/PhilosophySection';
+import ContactSection from './components/sections/ContactSection';
+import Footer from './components/sections/Footer';
 
-function AppContent() {
-  const {
-    input,
-    setInput,
-    messages,
-    isBotTyping,
-    aiMode,
-    sarvamMode,
-    scrollRef,
-    inputRef,
-    handleCommand,
-    handleSubmit,
-  } = useChatbot();
+const WORK_SECTIONS = [
+  { id: 'activity', label: 'Activity' },
+  { id: 'experience', label: 'Experience' },
+  { id: 'projects', label: 'Projects' },
+];
 
-  const stats = useStats();
-  const viewCount = stats.views || 0;
-
-  const [isClosing, setIsClosing] = useState(false);
-  const [isAppClosed, setIsAppClosed] = useState(false);
-
-  // Increment view on first load
-  useEffect(() => {
-    incrementView();
-  }, []);
-
-  const handleCloseApp = () => setIsClosing(true);
-  const handleFinalClose = () => {
-    setIsClosing(false);
-    setIsAppClosed(true);
-  };
-  const handleCancelClose = () => setIsClosing(false);
-
-  if (isAppClosed) {
-    return (
-      <div className="min-h-screen bg-theme-base text-theme-main font-mono p-4 flex items-center justify-center selection-theme flex-col gap-4">
-        <BackgroundDecor />
-        <div className="relative z-10 text-center space-y-4 max-w-md w-full bg-theme-panel/90 backdrop-blur-md p-8 rounded-lg border border-theme shadow-theme">
-          <div className="text-5xl mb-6">👋</div>
-          <h1 className="text-xl font-bold tracking-widest uppercase text-theme-primary">Session Ended</h1>
-          <p className="text-theme-muted text-sm">Thank you for visiting Abhay's portfolio.</p>
-          <button
-            onClick={() => setIsAppClosed(false)}
-            className="mt-6 px-6 py-2.5 border border-theme rounded hover:bg-theme-hover transition-colors text-theme-main text-xs font-bold uppercase tracking-wider"
-          >
-            Restart Terminal
-          </button>
-        </div>
-      </div>
-    );
-  }
-
+const WorkNav = () => {
   return (
-    <div className="min-h-screen bg-theme-base text-theme-main font-mono p-2 sm:p-4 md:p-8 flex items-center justify-center selection-theme overflow-hidden transition-colors duration-500">
-
-      <BackgroundDecor />
-
-      {/* Main Terminal Window */}
-      <div className="relative z-10 w-full max-w-5xl h-[100dvh] sm:h-[92vh] md:h-[85vh] bg-theme-panel/90 backdrop-blur-md sm:rounded-lg border border-theme shadow-theme flex flex-col overflow-hidden ring-1 ring-white/10 transition-colors duration-500">
-
-        <TerminalHeader aiMode={aiMode} sarvamMode={sarvamMode} viewCount={viewCount} onCloseApp={handleCloseApp} />
-
-        {/* Exit Intent / Close Modal */}
-        {isClosing && (
-          <div className="absolute inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-300">
-            <div className="w-full max-w-sm bg-theme-panel border border-theme rounded-xl p-5 shadow-2xl relative animate-in zoom-in-95 duration-300">
-              <button
-                onClick={handleCancelClose}
-                className="absolute right-4 top-4 text-theme-muted hover:text-white transition-colors"
-              >
-                ✕
-              </button>
-              <div className="text-center mb-2 mt-2">
-                <h2 className="text-lg font-bold text-theme-primary tracking-wider uppercase">Leaving so soon?</h2>
-                <p className="text-xs text-theme-muted mt-1.5">We'd love to hear your thoughts before you go.</p>
-              </div>
-              <FeedbackForm onSkip={handleFinalClose} onSubmitSuccess={handleFinalClose} />
-            </div>
-          </div>
-        )}
-
-        {/* Chat Area */}
-        <div
-          ref={scrollRef}
-          className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6 scrollbar-thin scrollbar-thumb-gray-800 scrollbar-track-transparent space-y-4 sm:space-y-6"
-        >
-          {messages.map((msg) => (
-            <ChatMessage key={msg.id} msg={msg} onCommand={handleCommand} />
+    <div className="pt-20 pb-4">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
+          {WORK_SECTIONS.map((sec) => (
+            <a
+              key={sec.id}
+              href={`#${sec.id}`}
+              className="shrink-0 px-4 py-2 text-sm font-bold text-toast-500 rounded-full border border-cream-200 bg-white hover:border-coral-400/40 hover:text-coral-500 transition-all"
+            >
+              {sec.label}
+            </a>
           ))}
-
-          {isBotTyping && <TypingIndicator />}
         </div>
-
-        {/* Emoji Reactions */}
-        <EmojiReactions />
-
-        {/* Sticky Quick Actions */}
-        <StickyQuickActions onCommand={handleCommand} />
-
-        <ChatInput
-          ref={inputRef}
-          input={input}
-          onInputChange={setInput}
-          onSubmit={handleSubmit}
-          aiMode={aiMode}
-          sarvamMode={sarvamMode}
-        />
       </div>
     </div>
   );
-}
+};
 
 export default function App() {
+  const [activeTab, setActiveTab] = useState('work');
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
-    <ThemeProvider>
-      <StatsProvider>
-        <AppContent />
-      </StatsProvider>
-    </ThemeProvider>
+    <div className="min-h-screen bg-cream-100 text-toast-800 font-sans selection:bg-cream-200 selection:text-toast-900">
+      <style dangerouslySetInnerHTML={{
+        __html: `
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(12px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .tab-content { animation: fadeIn 0.4s ease-out; }
+      `}} />
+
+      <Navbar activeTab={activeTab} onTabChange={handleTabChange} />
+
+      <main>
+        {activeTab === 'work' ? (
+          <div key="work" className="tab-content">
+            <WorkNav />
+            <StatsSection data={PORTFOLIO_DATA.stats} />
+            <ExperienceSection data={PORTFOLIO_DATA.experience} />
+            <ProjectsSection data={PORTFOLIO_DATA.projects} />
+          </div>
+        ) : (
+          <div key="info" className="tab-content">
+            <div className="max-w-7xl mx-auto px-6 pt-24 pb-8">
+              <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start">
+                <div className="w-full lg:w-auto lg:sticky lg:top-24 shrink-0">
+                  <InfoHeroSection personal={PORTFOLIO_DATA.personal} contact={PORTFOLIO_DATA.contact} experience={PORTFOLIO_DATA.experience} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <SkillsSection
+                    data={PORTFOLIO_DATA.skills}
+                    experience={PORTFOLIO_DATA.experience}
+                    projects={PORTFOLIO_DATA.projects}
+                  />
+                </div>
+              </div>
+            </div>
+            <PhilosophySection data={PORTFOLIO_DATA.philosophy} />
+            <ContactSection data={PORTFOLIO_DATA.contact} />
+          </div>
+        )}
+      </main>
+
+      <Footer />
+    </div>
   );
 }
