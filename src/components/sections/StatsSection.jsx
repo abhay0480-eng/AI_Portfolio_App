@@ -1,39 +1,70 @@
 import React, { useState, useEffect } from 'react';
-import { Github, Code2, ExternalLink, Flame } from 'lucide-react';
+import { Github, Code2, ExternalLink, Flame, Trophy } from 'lucide-react';
 import FadeIn from '../ui/FadeIn';
+import { ActivityCalendar } from 'react-activity-calendar';
 
 const StatsSection = ({ data }) => {
   const [lcData, setLcData] = useState(null);
-  const [loadingLc, setLoadingLc] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [calendarData, setCalendarData] = useState([]);
 
   useEffect(() => {
-    fetch(`https://leetcode-api-faisalshohag.vercel.app/${data.leetcode}`)
-      .then(async (res) => {
-        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-        const text = await res.text();
-        try {
-          return JSON.parse(text);
-        } catch (e) {
-          throw new Error("Invalid JSON response");
+    const fetchStats = async () => {
+      try {
+        const [lcRes, ghRes] = await Promise.allSettled([
+          fetch(`https://leetcode-api-faisalshohag.vercel.app/${data.leetcode}`),
+          fetch(`https://github-contributions-api.jogruber.de/v4/${data.github}?y=last`)
+        ]);
+
+        let lcParsed = null;
+        if (lcRes.status === 'fulfilled' && lcRes.value.ok) {
+          lcParsed = JSON.parse(await lcRes.value.text());
         }
-      })
-      .then(resData => {
-        if (resData && resData.totalSolved !== undefined) {
-          let streak = 0;
-          if (resData.submissionCalendar) {
-            const calendar = typeof resData.submissionCalendar === 'string'
-              ? JSON.parse(resData.submissionCalendar)
-              : resData.submissionCalendar;
+
+        let ghParsed = null;
+        if (ghRes.status === 'fulfilled' && ghRes.value.ok) {
+           ghParsed = await ghRes.value.json();
+        }
+
+        let streak = 0;
+        let maxStreak = 0;
+        let lcCalendarObj = {};
+
+        if (lcParsed && lcParsed.totalSolved !== undefined) {
+          if (lcParsed.submissionCalendar) {
+            lcCalendarObj = typeof lcParsed.submissionCalendar === 'string'
+              ? JSON.parse(lcParsed.submissionCalendar)
+              : lcParsed.submissionCalendar;
+
+            const timestamps = Object.keys(lcCalendarObj).map(Number).sort((a, b) => a - b);
+            let currentTempStreak = 0;
+            let prevTs = 0;
+
+            for (const ts of timestamps) {
+              if (prevTs === 0) {
+                currentTempStreak = 1;
+              } else {
+                const diffDays = Math.round((ts - prevTs) / 86400);
+                if (diffDays === 1) {
+                  currentTempStreak++;
+                } else if (diffDays > 1) {
+                  currentTempStreak = 1;
+                }
+              }
+              maxStreak = Math.max(maxStreak, currentTempStreak);
+              prevTs = ts;
+            }
+
             const now = new Date();
             const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
             let checkDate = new Date(todayMidnight);
             const todayTs = Math.floor(todayMidnight.getTime() / 1000).toString();
-            if (!calendar[todayTs]) {
+            if (!lcCalendarObj[todayTs]) {
               checkDate.setDate(checkDate.getDate() - 1);
             }
             while (true) {
               const ts = Math.floor(checkDate.getTime() / 1000).toString();
-              if (calendar[ts] && calendar[ts] > 0) {
+              if (lcCalendarObj[ts] && lcCalendarObj[ts] > 0) {
                 streak++;
                 checkDate.setDate(checkDate.getDate() - 1);
               } else {
@@ -41,24 +72,57 @@ const StatsSection = ({ data }) => {
               }
             }
           }
-          setLcData({ ...resData, streak });
+          setLcData({ ...lcParsed, streak, maxStreak });
         } else {
-          throw new Error("Invalid data format");
+          setLcData({
+            totalSolved: 485, totalQuestions: 3054,
+            easySolved: 150, totalEasy: 760,
+            mediumSolved: 250, totalMedium: 1600,
+            hardSolved: 85, totalHard: 694,
+            streak: 0,
+            maxStreak: 0
+          });
         }
-        setLoadingLc(false);
-      })
-      .catch((err) => {
-        console.error("Failed to fetch live LeetCode data, using fallback.", err);
-        setLcData({
-          totalSolved: 485, totalQuestions: 3054,
-          easySolved: 150, totalEasy: 760,
-          mediumSolved: 250, totalMedium: 1600,
-          hardSolved: 85, totalHard: 694,
-          streak: 0
+
+        const lcDateCounts = {};
+        Object.keys(lcCalendarObj).forEach(ts => {
+           const dateObj = new Date(parseInt(ts) * 1000);
+           const y = dateObj.getFullYear();
+           const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+           const d = String(dateObj.getDate()).padStart(2, '0');
+           lcDateCounts[`${y}-${m}-${d}`] = lcCalendarObj[ts];
         });
-        setLoadingLc(false);
-      });
-  }, [data.leetcode]);
+
+        if (ghParsed && ghParsed.contributions) {
+           const combined = ghParsed.contributions.map(day => {
+              const date = day.date;
+              const ghCount = day.count || 0;
+              const lcCount = lcDateCounts[date] || 0;
+              const totalCount = ghCount + lcCount;
+              
+              let level = 0;
+              if (totalCount > 0 && totalCount <= 3) level = 1;
+              else if (totalCount > 3 && totalCount <= 6) level = 2;
+              else if (totalCount > 6 && totalCount <= 9) level = 3;
+              else if (totalCount > 9) level = 4;
+
+              return {
+                 date,
+                 count: totalCount,
+                 level
+              };
+           });
+           setCalendarData(combined);
+        }
+        setLoading(false);
+      } catch (err) {
+        console.error("Failed to fetch coding data", err);
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, [data.leetcode, data.github]);
 
   return (
     <section id="activity" className="py-16 overflow-hidden bg-cream-50 border-y border-cream-200">
@@ -73,26 +137,54 @@ const StatsSection = ({ data }) => {
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-          {/* GitHub Heatmap Card */}
+          {/* Combined Heatmap Card */}
           <FadeIn delay={100} className="lg:col-span-2 p-8 rounded-[2rem] bg-cream-100 border border-cream-200 shadow-sm hover:border-coral-400/30 transition-colors flex flex-col">
-            <a href={`https://github.com/${data.github}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 mb-8 group/link">
-              <div className="w-10 h-10 rounded-full bg-white border border-cream-200 flex items-center justify-center shrink-0">
-                <Github size={20} className="text-toast-900" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-lg font-bold text-toast-900 leading-tight">GitHub Contributions</h3>
-                <p className="text-sm text-toast-500 font-medium">@{data.github}</p>
-              </div>
-              <ExternalLink size={16} className="text-toast-300 group-hover/link:text-coral-500 transition-colors" />
-            </a>
+            <div className="flex items-center justify-between mb-8 group/link">
+               <div className="flex items-center gap-3">
+                 <div className="flex -space-x-3">
+                   <div className="w-10 h-10 rounded-full bg-toast-900 border-[3px] border-cream-100 flex items-center justify-center shrink-0 z-10 shadow-sm">
+                     <Github size={18} className="text-white" />
+                   </div>
+                   <div className="w-10 h-10 rounded-full bg-white border-[3px] border-cream-100 flex items-center justify-center shrink-0 z-0 shadow-sm">
+                     <Code2 size={18} className="text-coral-500" />
+                   </div>
+                 </div>
+                 <div className="flex-1 ml-2">
+                   <h3 className="text-lg font-bold text-toast-900 leading-tight">Combined Coding Activity</h3>
+                   <p className="text-sm text-toast-500 font-medium">GitHub • LeetCode</p>
+                 </div>
+               </div>
+            </div>
 
-            <div className="flex-grow flex items-center justify-center overflow-x-auto no-scrollbar bg-white p-6 rounded-2xl border border-cream-200">
-              <img
-                src={`https://ghchart.rshah.org/E25B45/${data.github}`}
-                alt={`${data.github}'s GitHub Heatmap`}
-                className="w-full min-w-[600px] opacity-90 hover:opacity-100 transition-opacity"
-                loading="lazy"
-              />
+            <div className="flex-grow flex flex-col justify-center overflow-x-auto no-scrollbar bg-white p-6 rounded-2xl border border-cream-200 min-h-[220px]">
+              {loading ? (
+                 <div className="animate-pulse flex items-center justify-center gap-2 h-full w-full">
+                     <div className="h-28 w-8 bg-cream-200 rounded-sm"></div>
+                     <div className="h-28 w-8 bg-cream-200 rounded-sm"></div>
+                     <div className="h-28 w-8 bg-cream-200 rounded-sm"></div>
+                     <div className="h-28 w-8 bg-cream-200 rounded-sm"></div>
+                     <div className="h-28 w-8 bg-cream-200 rounded-sm"></div>
+                 </div>
+              ) : calendarData.length > 0 ? (
+                 <div className="min-w-fit pr-4 w-full flex justify-center">
+                  <ActivityCalendar
+                    data={calendarData}
+                    theme={{
+                      light: ['#f1f5f9', '#fca5a5', '#f87171', '#ef4444', '#b91c1c'],
+                      dark: ['#f1f5f9', '#fca5a5', '#f87171', '#ef4444', '#b91c1c']
+                    }}
+                    colorScheme="light"
+                    labels={{
+                      totalCount: `{{count}} combined contributions in the last year`
+                    }}
+                    renderBlock={(block, activity) => React.cloneElement(block, {
+                      title: `${activity.count} contributions on ${activity.date}`
+                    })}
+                  />
+                 </div>
+              ) : (
+                 <div className="text-toast-500 font-medium text-sm text-center">Unable to load heatmap.</div>
+              )}
             </div>
           </FadeIn>
 
@@ -110,7 +202,7 @@ const StatsSection = ({ data }) => {
             </a>
 
             <div className="bg-white p-6 rounded-2xl border border-cream-200 flex-grow flex flex-col justify-center">
-              {loadingLc ? (
+              {loading ? (
                 <div className="animate-pulse flex flex-col gap-4">
                   <div className="h-10 w-24 bg-cream-200 rounded-lg"></div>
                   <div className="h-4 w-full bg-cream-200 rounded-full mt-4"></div>
@@ -125,13 +217,22 @@ const StatsSection = ({ data }) => {
                       <span className="text-toast-400 font-semibold ml-2">/ {lcData.totalQuestions}</span>
                       <p className="text-sm text-toast-500 font-medium mt-1">Problems Solved</p>
                     </div>
-                    {lcData.streak > 0 && (
-                      <div className="flex items-center gap-1.5 px-3 py-1.5 bg-coral-400/10 border border-coral-400/20 rounded-full">
-                        <Flame size={14} className="text-coral-500" />
-                        <span className="text-sm font-bold text-coral-600">{lcData.streak}</span>
-                        <span className="text-xs text-coral-400 font-medium">day{lcData.streak !== 1 ? 's' : ''}</span>
-                      </div>
-                    )}
+                    <div className="flex flex-col gap-2 items-end">
+                      {lcData.streak > 0 && (
+                        <div title="Current Streak" className="flex items-center gap-1.5 px-3 py-1.5 bg-coral-400/10 border border-coral-400/20 rounded-full">
+                          <Flame size={14} className="text-coral-500" />
+                          <span className="text-sm font-bold text-coral-600">{lcData.streak}</span>
+                          <span className="text-xs text-coral-500 font-medium">day{lcData.streak !== 1 ? 's' : ''}</span>
+                        </div>
+                      )}
+                      {lcData.maxStreak > 0 && (
+                        <div title="Max Streak" className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-400/10 border border-amber-400/20 rounded-full">
+                          <Trophy size={14} className="text-amber-500" />
+                          <span className="text-sm font-bold text-amber-600">{lcData.maxStreak}</span>
+                          <span className="text-xs text-amber-500 font-medium">max streak</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   <div className="space-y-4">

@@ -35,12 +35,14 @@ const InfoHeroSection = ({ personal, contact, experience }) => {
             {/* Card content */}
             <div className="px-5 pb-5 pt-1">
 
-              {/* Avatar with initials */}
+              {/* Profile photo */}
               <div className="flex justify-center mb-3">
-                <div className="w-18 h-18 rounded-full bg-gradient-to-br from-coral-500 to-amber-500 flex items-center justify-center shadow-lg shadow-coral-400/30">
-                  <span className="text-2xl font-extrabold text-white">
-                    {personal.name.split(' ').map(n => n[0]).join('')}
-                  </span>
+                <div className="w-18 h-18 rounded-full bg-gradient-to-br from-coral-500 to-amber-500 p-[2px] shadow-lg shadow-coral-400/30">
+                  <img
+                    src="/abhay_profile.png"
+                    alt={personal.name}
+                    className="w-full h-full rounded-full object-cover"
+                  />
                 </div>
               </div>
 
