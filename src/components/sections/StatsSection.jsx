@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Github, Code2, ExternalLink, Flame, Trophy } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Github, Code2, ExternalLink, Flame, Trophy, ChevronLeft, ChevronRight } from 'lucide-react';
 import FadeIn from '../ui/FadeIn';
 import { ActivityCalendar } from 'react-activity-calendar';
 
@@ -7,6 +7,21 @@ const StatsSection = ({ data }) => {
   const [lcData, setLcData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [calendarData, setCalendarData] = useState([]);
+  const calendarScrollRef = useRef(null);
+
+  useEffect(() => {
+    if (!loading && calendarScrollRef.current) {
+      // Small timeout to ensure DOM is fully rendered before scrolling
+      setTimeout(() => {
+        if (calendarScrollRef.current) {
+          calendarScrollRef.current.scrollTo({
+            left: calendarScrollRef.current.scrollWidth,
+            behavior: 'smooth'
+          });
+        }
+      }, 100);
+    }
+  }, [loading, calendarData]);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -154,9 +169,34 @@ const StatsSection = ({ data }) => {
                    <p className="text-sm text-toast-500 font-medium">GitHub • LeetCode</p>
                  </div>
                </div>
+
+               <div className="hidden md:flex gap-2">
+                 <button 
+                   onClick={() => {
+                     if (calendarScrollRef.current) {
+                       calendarScrollRef.current.scrollBy({ left: -400, behavior: 'smooth' });
+                     }
+                   }}
+                   className="p-2.5 rounded-full bg-white border border-cream-200 text-toast-400 hover:text-coral-500 hover:border-coral-400/30 hover:shadow-sm transition-all"
+                   aria-label="Scroll left"
+                 >
+                   <ChevronLeft size={18} />
+                 </button>
+                 <button 
+                   onClick={() => {
+                     if (calendarScrollRef.current) {
+                       calendarScrollRef.current.scrollBy({ left: 400, behavior: 'smooth' });
+                     }
+                   }}
+                   className="p-2.5 rounded-full bg-white border border-cream-200 text-toast-400 hover:text-coral-500 hover:border-coral-400/30 hover:shadow-sm transition-all"
+                   aria-label="Scroll right"
+                 >
+                   <ChevronRight size={18} />
+                 </button>
+               </div>
             </div>
 
-            <div className="flex-grow flex flex-col justify-center overflow-x-auto no-scrollbar bg-white p-6 rounded-2xl border border-cream-200 min-h-[220px]">
+            <div ref={calendarScrollRef} className="flex-grow flex flex-col justify-center overflow-x-auto no-scrollbar bg-white p-6 rounded-2xl border border-cream-200 min-h-[220px]">
               {loading ? (
                  <div className="animate-pulse flex items-center justify-center gap-2 h-full w-full">
                      <div className="h-28 w-8 bg-cream-200 rounded-sm"></div>
