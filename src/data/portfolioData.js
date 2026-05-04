@@ -70,14 +70,26 @@ const PORTFOLIO_DATA = {
   "projects": [
     {
       "id": "prj-1",
-      "name": "Link Sharing Platform",
-      "description": "High-performance link sharing application.",
-      "problem": "Users needed a fast, scalable way to manage and share links efficiently.",
-      "solution": "Built a React-based platform with optimized asset delivery and scalable architecture, achieving 90+ Lighthouse score.",
-      "tech": ["React", "TailwindCSS", "Appwrite", "JavaScript"],
-      "link": "https://link-app-fm.vercel.app/add-links",
-      "github": ""
+      "name": "Vrooom — Bike Rental App",
+      "description": "A modern bike rental platform where users can explore and rent bikes, and hosts can manage their listings from a dedicated dashboard.",
+      "problem": "Users needed a streamlined platform to discover bikes by category, while hosts required a robust dashboard to securely track income, read reviews, and manage inventory.",
+      "solution": "Built a responsive, mobile-first React application featuring Firebase authentication, protected nested routing, and reusable UI components with dynamic loading states.",
+      "tech": [
+        "React",
+        "TypeScript",
+        "TailwindCSS",
+        "Firebase",
+        "Vite",
+        "React Router"
+      ],
+      "link": "https://bike-rental-app-nine.vercel.app/",
+      "github": "https://github.com/abhay0480-eng/Bike_rental_App",
+      "images": {
+        "desktop": "https://res.cloudinary.com/dguqivg6t/image/upload/samples/portfolio/Screenshot_2026-05-04_at_10.46.51_PM_mqaidh.png",
+        "mobile": "https://res.cloudinary.com/dguqivg6t/image/upload/v1777921821/samples/portfolio/Screenshot_2026-05-04_at_10.47.54_PM_mdnqrl.png"
+      }
     },
+
     {
       "id": "prj-2",
       "name": "Quiz Application",
@@ -86,7 +98,11 @@ const PORTFOLIO_DATA = {
       "solution": "Implemented compound component patterns and optimized routing using React Router and Context API.",
       "tech": ["React", "Context API", "Ant Design", "JavaScript"],
       "link": "https://quiz-app-fm.vercel.app/",
-      "github": ""
+      "github": "",
+      "images": {
+        "desktop": "",
+        "mobile": ""
+      }
     }
   ],
 
